@@ -959,25 +959,139 @@ Protected Module AloeExpress
 
 	#tag Method, Flags = &h0
 		Function UUIDGenerate() As String
-		  // Generates a UUID.
-		  // Source: https://forum.xojo.com/18856-getting-guid/0 ( Roberto Calvi )
-		  // Replace this with whatever UUID generation function that you prefer.
+		  // Tries to use declares to let the native system functions handle this.
+		  // Otherwise, falls back to manual creation.
 		  
+		  Dim result As String
 		  
-		  Dim db As New SQLiteDatabase
+		  Dim useDeclares As Boolean = True
 		  
-		  Dim SQL_Instruction As String= "select hex( randomblob(4)) " _
-		  + "|| '-' || hex( randomblob(2)) " _
-		  + "|| '-' || '4' || substr( hex( randomblob(2)), 2) " _
-		  + "|| '-' || substr('AB89', 1 + (abs(random()) % 4) , 1) " _
-		  + "|| substr(hex(randomblob(2)), 2) " _
-		  + "|| '-' || hex(randomblob(6)) AS GUID"
+		  Try
+		    
+		    #If TargetMacOS
+		      
+		      Soft Declare Function NSClassFromString Lib "Cocoa"(clsName As CFStringRef) As Ptr
+		      Soft Declare Function UUID Lib "Cocoa" selector "UUID"(clsRef As Ptr) As Ptr
+		      Soft Declare Function UUIDString Lib "Cocoa" selector "UUIDString"(obj_id As Ptr) As CFStringRef
+		      
+		      Dim classPtr As Ptr = NSClassFromString("NSUUID")
+		      If classPtr = Nil Then
+		        useDeclares = False
+		      Else
+		        Dim NSUUID As Ptr = UUID(classPtr)
+		        
+		        result = UUIDString(NSUUID)
+		      End If
+		      
+		    #ElseIf TargetWindows
+		      
+		      Const kLibName = "rpcrt4"
+		      
+		      If Not System.IsFunctionAvailable("UuidCreate", kLibName) Then
+		        useDeclares = False
+		      ElseIf Not System.IsFunctionAvailable("UuidToStringA", kLibName) Then
+		        useDeclares = False
+		      Else
+		        Soft Declare Function UUIDCreate Lib kLibName alias "UuidCreate"(ByRef uuid As WindowsUUID) As Integer
+		        Soft Declare Function UUIDToString Lib kLibName alias "UuidToStringA"(ByRef inUUID As WindowsUUID, ByRef outString As CString) As Integer
+		        
+		        Dim uuid As WindowsUUID
+		        If UUIDCreate(uuid) <> 0 Then
+		          useDeclares = False
+		        Else
+		          Dim out As CString
+		          If UUIDToString(uuid, out) <> 0 Then
+		            useDeclares = False
+		          Else
+		            result = out
+		            result = result.DefineEncoding(Encodings.UTF8)
+		            result = result.Uppercase
+		          End If
+		          
+		        End If
+		      End If
+		      
+		    #ElseIf TargetLinux
+		      
+		      Const kLibName = "uuid"
+		      
+		      If Not System.IsFunctionAvailable("uuid_generate", kLibName) Then
+		        useDeclares = False
+		      ElseIf Not System.IsFunctionAvailable("uuid_unparse_upper", kLibName) Then
+		        useDeclares = False
+		      Else
+		        Soft Declare Sub UUIDGenerate Lib kLibName alias "uuid_generate"(ByRef uuid As LinuxUUID)
+		        Soft Declare Sub UUIDUnparse Lib kLibName alias "uuid_unparse_upper"(ByRef uuid As LinuxUUID, ByRef out As LinuxUUIDString)
+		        
+		        Dim uuid As LinuxUUID
+		        UUIDGenerate(uuid)
+		        
+		        Dim out As LinuxUUIDString
+		        UUIDUnparse(uuid, out)
+		        
+		        result = out.Data
+		        result = result.DefineEncoding(Encodings.UTF8)
+		      End If
+		      
+		    #Else
+		      useDeclares = False
+		    #EndIf
+		    
+		  Catch err As RuntimeException
+		    useDeclares = False
+		    If err IsA EndException or err IsA ThreadEndException Then
+		      Raise err
+		    End If
+		  End Try
 		  
-		  If db.Connect Then
-		    Dim GUID As String = db.SQLSelect(SQL_Instruction).Field("GUID")
-		    db.Close
-		    Return  GUID
+		  If Not useDeclares Then
+		    //
+		    // Fallback to manual creation
+		    //
+		    // From http://www.cryptosys.net/pki/uuid-rfc4122.html
+		    //
+		    // Generate 16 random bytes (=128 bits)
+		    // Adjust certain bits according to RFC 4122 section 4.4 as follows:
+		    // set the four most significant bits of the 7th byte to 0100'B, so the high nibble is '4'
+		    // set the two most significant bits of the 9th byte to 10'B, so the high nibble will be one of '8', '9', 'A', or 'B'.
+		    // Convert the adjusted bytes to 32 hexadecimal digits
+		    // Add four hyphen '-' characters to obtain blocks of 8, 4, 4, 4 and 12 hex digits
+		    // Output the resulting 36-character string "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+		    //
+		    
+		    #Pragma BackgroundTasks False
+		    #Pragma BoundsChecking False
+		    #Pragma NilObjectChecking False
+		    
+		    System.DebugLog CurrentMethodName + ": Generating manually"
+		    'MsgBox "Manual!"
+		    
+		    Dim randomBytes As MemoryBlock = Crypto.GenerateRandomBytes(16)
+		    randomBytes.LittleEndian = False
+		    Dim p As Ptr = randomBytes
+		    
+		    //
+		    // Adjust seventh byte
+		    //
+		    Dim value As byte = p.Byte(6)
+		    value = value And CType(&b00001111, Byte) // Turn off the first four bits
+		    value = value or CType(&b01000000, Byte) // Turn on the second bit
+		    p.Byte(6) = value
+		    
+		    //
+		    // Adjust ninth byte
+		    //
+		    value = p.Byte(8)
+		    value = value And CType(&b00111111, Byte) // Turn off the first two bits
+		    value = value or CType(&b10000000, Byte) // Turn on the first bit
+		    p.Byte(8) = value
+		    
+		    result = EncodeHex(randomBytes)
+		    result = result.LeftB(8) + "-" + result.MidB(9, 4) + "-" + result.MidB(13, 4) + "-" + result.MidB(17, 4) + _
+		    "-" + result.RightB(12)
 		  End If
+		  
+		  Return result
 		End Function
 	#tag EndMethod
 
