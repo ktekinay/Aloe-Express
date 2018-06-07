@@ -231,10 +231,19 @@ Implements SessionInterface
 		  
 		  
 		  // If the session still exists...
-		  If Sessions.HasKey(Session.Value("SessionID")) Then
+		  Dim Key As String = AloeExpress.Session.kSessionID
+		  Dim SessionID As String = Session.Value(Key)
+		  
+		  If Sessions.HasKey(SessionID) Then
 		    
 		    // Remove the session from the array of sessions.
-		    Sessions.Remove(Session.Value("SessionID"))
+		    #Pragma BreakOnExceptions False
+		    Try
+		      Sessions.Remove(SessionID)
+		    Catch Err As KeyNotFoundException
+		      // It expired already, perhaps in another thread, so it's all good
+		    End Try
+		    #Pragma BreakOnExceptions Default 
 		    
 		  End If
 		End Sub
