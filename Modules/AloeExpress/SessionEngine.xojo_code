@@ -50,14 +50,14 @@ Implements SessionInterface
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function SessionGet(Request As AloeExpress.Request, AssignNewID As Boolean=True) As Dictionary
+		Function SessionGet(Request As AloeExpress.Request, AssignNewID As Boolean=True) As AloeExpress.Session
 		  // Returns a session for the request.
 		  // If an existing session is available, then it is returned.
 		  // Otherwise a new session is created and returned.
 		  
 		  
 		  // This is the session that we'll return.
-		  Dim Session As Dictionary
+		  Dim Session As AloeExpress.Session
 		  
 		  
 		  // This will be used if a new SessionID is assigned.
@@ -80,10 +80,10 @@ Implements SessionInterface
 		  If Session <> Nil Then
 		    
 		    // Update the session's LastRequestTimestamp.
-		    Session.Value("LastRequestTimestamp") = Now
+		    Session.LastRequestTimestamp = Now
 		    
 		    // Increment the session's Request Count.
-		    Session.Value("RequestCount") = Session.Value("RequestCount") + 1
+		    Session.RequestCount = Session.RequestCount + 1
 		    
 		    // If we're not going to assign a new Session ID to the existing session...
 		    If AssignNewID = False Then
@@ -99,7 +99,7 @@ Implements SessionInterface
 		    NewSessionID = UUIDGenerate
 		    
 		    // Update the session with the new ID.
-		    Session.Value("SessionID") = NewSessionID
+		    Session.SessionID = NewSessionID
 		    
 		    // Add the new session to the Sessions dictionary.
 		    Sessions.Value(NewSessionID) = Session
@@ -110,7 +110,7 @@ Implements SessionInterface
 		  Else
 		    
 		    // We were unable to re-use an existing session, so create a new one...
-		    Session = AloeExpress.NewSession(Request)
+		    Session = New AloeExpress.Session(Request)
 		    
 		  End If
 		  
@@ -135,13 +135,13 @@ Implements SessionInterface
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function SessionLookup(SessionId As String) As Dictionary
+		Function SessionLookup(SessionId As String) As AloeExpress.Session
 		  // Looks up a Session by its ID
 		  //
 		  // Return Nil if not found or expired
 		  
 		  // This is the session that we'll return.
-		  Dim Session As Dictionary
+		  Dim Session As AloeExpress.Session
 		  
 		  
 		  // If the user has a Session ID cookie...
@@ -154,7 +154,7 @@ Implements SessionInterface
 		    If Session <> Nil Then
 		      
 		      // Get the session's LastRequestTimestamp.
-		      Dim LastRequestTimestamp As Date = Session.Value("LastRequestTimestamp")
+		      Dim LastRequestTimestamp As Date = Session.LastRequestTimestamp
 		      
 		      // Determine the time that has elapsed since the last request.
 		      Dim Now As New Date

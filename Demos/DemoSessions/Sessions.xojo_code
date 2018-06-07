@@ -89,12 +89,12 @@ Protected Class Sessions
 		    
 		    // Get the entry's key and value.
 		    Dim SessionID As String = Key
-		    Dim Session As Dictionary = Request.Server.SessionEngine.SessionLookup(Key)
+		    Dim Session As AloeExpress.Session = Request.Server.SessionEngine.SessionLookup(Key)
 		    
-		    Dim RemoteAddress As String = Session.Lookup("RemoteAddress", "")
+		    Dim RemoteAddress As String = Session.RemoteAddress
 		    Dim Username As String = Session.Lookup("Username", "n/a")
-		    Dim Authenticated As String = If (Session.Lookup("Authenticated", False), "Yes", "No")
-		    Dim RequestCount As Integer = Session.Lookup("RequestCount", 0)
+		    Dim Authenticated As String = If (Session.Authenticated, "Yes", "No")
+		    Dim RequestCount As Integer = Session.RequestCount
 		    
 		    TableHTML = TableHTML _
 		    + "<tr>" + EndOfLine _

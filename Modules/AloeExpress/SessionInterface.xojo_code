@@ -7,13 +7,13 @@ Protected Interface SessionInterface
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function SessionGet(Request As AloeExpress.Request, AssignNewID As Boolean=True) As Dictionary
+		Function SessionGet(Request As AloeExpress.Request, AssignNewID As Boolean=True) As AloeExpress.Session
 		  
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function SessionLookup(SessionId As String) As Dictionary
+		Function SessionLookup(SessionId As String) As AloeExpress.Session
 		  
 		End Function
 	#tag EndMethod
