@@ -85,11 +85,11 @@ Protected Class Sessions
 		  
 		  
 		  // Loop over the server's session keys...
-		  For Each Key As Variant in Request.Server.SessionEngine.Sessions.Keys
+		  For Each Key As String in Request.Server.SessionEngine.SessionAllSessionIds
 		    
 		    // Get the entry's key and value.
 		    Dim SessionID As String = Key
-		    Dim Session As Dictionary = Request.Server.SessionEngine.Sessions.Value(Key)
+		    Dim Session As Dictionary = Request.Server.SessionEngine.SessionLookup(Key)
 		    
 		    Dim RemoteAddress As String = Session.Lookup("RemoteAddress", "")
 		    Dim Username As String = Session.Lookup("Username", "n/a")

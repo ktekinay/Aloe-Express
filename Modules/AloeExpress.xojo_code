@@ -839,6 +839,28 @@ Protected Module AloeExpress
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function NewSession(Request As AloeExpress.Request) As Dictionary
+		  // Generate a new Session ID.
+		  Dim NewSessionID As String = UUIDGenerate
+		  
+		  Dim Now As New Date
+		  
+		  // Create a new session dictionary.
+		  Dim Session As New Dictionary
+		  
+		  Session.Value("SessionID") = NewSessionID
+		  Session.Value("LastRequestTimestamp") = Now
+		  Session.Value("RemoteAddress") = Request.RemoteAddress
+		  Session.Value("UserAgent") = Request.Headers.Lookup("User-Agent", "")
+		  Session.Value("RequestCount") = 1
+		  Session.Value("Authenticated") = False
+		  
+		  Return Session
+		  
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Function PrimitiveToString(Value As Variant) As String
 		  // Converts the value of a primitive datatype (boolean, number, string, etc) to a string.

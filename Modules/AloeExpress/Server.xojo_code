@@ -268,7 +268,7 @@ Inherits ServerSocket
 	#tag EndProperty
 
 	#tag Property, Flags = &h0
-		SessionEngine As AloeExpress.SessionEngine
+		SessionEngine As AloeExpress.SessionInterface
 	#tag EndProperty
 
 	#tag Property, Flags = &h0

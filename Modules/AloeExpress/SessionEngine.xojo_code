@@ -1,7 +1,8 @@
 #tag Class
 Protected Class SessionEngine
 Inherits Timer
-	#tag CompatibilityFlags = (TargetConsole and (Target32Bit or Target64Bit)) or  (TargetWeb and (Target32Bit or Target64Bit)) or  (TargetDesktop and (Target32Bit or Target64Bit)) or  (TargetIOS and (Target32Bit or Target64Bit))
+Implements SessionInterface
+	#tag CompatibilityFlags = ( TargetConsole and ( Target32Bit or Target64Bit ) ) or ( TargetWeb and ( Target32Bit or Target64Bit ) ) or ( TargetDesktop and ( Target32Bit or Target64Bit ) ) or ( TargetIOS and ( Target32Bit or Target64Bit ) )
 	#tag Event
 		Sub Action()
 		  SessionsSweep
@@ -36,6 +37,19 @@ Inherits Timer
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function SessionAllSessionIds() As String()
+		  Dim Ids() As String
+		  
+		  For Each Key As Variant In Sessions.Keys
+		    Ids.Append Key.StringValue
+		  Next
+		  
+		  Return Ids
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function SessionGet(Request As AloeExpress.Request, AssignNewID As Boolean=True) As Dictionary
 		  // Returns a session for the request.
 		  // If an existing session is available, then it is returned.
@@ -58,35 +72,8 @@ Inherits Timer
 		  Dim OriginalSessionID As String = Request.Cookies.Lookup("SessionID", "")
 		  
 		  
-		  // If the user has a Session ID cookie...
-		  If OriginalSessionID <> "" Then
-		    
-		    // If the Session ID matches a session in the Sessions dictionary...
-		    If Sessions.HasKey(OriginalSessionID) = True Then
-		      
-		      // Get the session.
-		      Session = Sessions.Value(OriginalSessionID)
-		      
-		      // Get the session's LastRequestTimestamp.
-		      Dim LastRequestTimestamp As Date = Session.Value("LastRequestTimestamp")
-		      
-		      // Determine the time that has elapsed since the last request.
-		      Dim TimeElapsed As Double = Now.TotalSeconds - LastRequestTimestamp.TotalSeconds
-		      
-		      // If the session has expired...
-		      If TimeElapsed > SessionsTimeOutSecs Then
-		        
-		        // Remove the session from the array.
-		        Sessions.Remove(OriginalSessionID)
-		        
-		        // Clear the session.
-		        Session = Nil
-		        
-		      End If
-		      
-		    End If
-		    
-		  End If
+		  // Get the Session
+		  Session = SessionLookup(OriginalSessionID)
 		  
 		  
 		  // If an existing session is available...
@@ -123,18 +110,7 @@ Inherits Timer
 		  Else
 		    
 		    // We were unable to re-use an existing session, so create a new one...
-		    
-		    // Generate a new Session ID.
-		    NewSessionID = UUIDGenerate
-		    
-		    // Create a new session dictionary.
-		    Session = New Dictionary
-		    Session.Value("SessionID") = NewSessionID
-		    Session.Value("LastRequestTimestamp") = Now
-		    Session.Value("RemoteAddress") = Request.RemoteAddress
-		    Session.Value("UserAgent") = Request.Headers.Lookup("User-Agent", "")
-		    Session.Value("RequestCount") = 1
-		    Session.Value("Authenticated") = False
+		    Session = AloeExpress.NewSession(Request)
 		    
 		  End If
 		  
@@ -155,9 +131,52 @@ Inherits Timer
 		  // Return the session to the caller.
 		  Return Session
 		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function SessionLookup(SessionId As String) As Dictionary
+		  // Looks up a Session by its ID
+		  //
+		  // Return Nil if not found or expired
+		  
+		  // This is the session that we'll return.
+		  Dim Session As Dictionary
 		  
 		  
+		  // If the user has a Session ID cookie...
+		  If SessionID <> "" Then
+		    
+		    // Get the session.
+		    Session = Sessions.Lookup(SessionID, Nil)
+		    
+		    // If the Session ID matches a session in the Sessions dictionary...
+		    If Session <> Nil Then
+		      
+		      // Get the session's LastRequestTimestamp.
+		      Dim LastRequestTimestamp As Date = Session.Value("LastRequestTimestamp")
+		      
+		      // Determine the time that has elapsed since the last request.
+		      Dim Now As New Date
+		      Dim TimeElapsed As Double = Now.TotalSeconds - LastRequestTimestamp.TotalSeconds
+		      
+		      // If the session has expired...
+		      If TimeElapsed > SessionsTimeOutSecs Then
+		        
+		        // Remove the session from the array.
+		        Sessions.Remove(SessionID)
+		        
+		        // Clear the session.
+		        Session = Nil
+		        
+		      End If
+		      
+		    End If
+		    
+		  End If
 		  
+		  
+		  Return Session
 		  
 		End Function
 	#tag EndMethod
