@@ -91,6 +91,11 @@ Protected Class Sessions
 		    Dim SessionID As String = Key
 		    Dim Session As AloeExpress.Session = Request.Server.SessionEngine.SessionLookup(Key)
 		    
+		    // The session might have expired in the time it took to look it up
+		    If Session Is Nil Then
+		      Continue For Key
+		    End If
+		    
 		    Dim RemoteAddress As String = Session.RemoteAddress
 		    Dim Username As String = Session.Lookup("Username", "n/a")
 		    Dim Authenticated As String = If (Session.Authenticated, "Yes", "No")
