@@ -111,6 +111,7 @@ Implements SessionInterface
 		    
 		    // We were unable to re-use an existing session, so create a new one...
 		    Session = New AloeExpress.Session(Request)
+		    NewSessionID = Session.SessionID
 		    
 		  End If
 		  
