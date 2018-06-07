@@ -1,6 +1,6 @@
 #tag Class
 Protected Class Sessions
-	#tag CompatibilityFlags = (TargetConsole and (Target32Bit or Target64Bit)) or  (TargetWeb and (Target32Bit or Target64Bit)) or  (TargetDesktop and (Target32Bit or Target64Bit)) or  (TargetIOS and (Target32Bit or Target64Bit))
+	#tag CompatibilityFlags = ( TargetConsole and ( Target32Bit or Target64Bit ) ) or ( TargetWeb and ( Target32Bit or Target64Bit ) ) or ( TargetDesktop and ( Target32Bit or Target64Bit ) ) or ( TargetIOS and ( Target32Bit or Target64Bit ) )
 	#tag Method, Flags = &h0
 		Sub BodyContentGenerate()
 		  
@@ -77,10 +77,11 @@ Protected Class Sessions
 		  + "<table class=""gridtable"" width=""100%"">" _
 		  + "<tr>" _
 		  + "<th width=""30%"">Session ID</th>" _
-		  + "<th width=""20%"">User IP Address</th>" _
-		  + "<th width=""30%"">Username</th>" _
+		  + "<th width=""15%"">User IP Address</th>" _
+		  + "<th width=""20%"">Username</th>" _
 		  + "<th width=""10%"">Authenticated</th>" _
 		  + "<th width=""10%""># Requests</th>" _
+		  + "<th width=""15%"">Last Request</th>" _
 		  + "</tr>" + EndOfLine
 		  
 		  
@@ -100,6 +101,7 @@ Protected Class Sessions
 		    Dim Username As String = Session.Lookup("Username", "n/a")
 		    Dim Authenticated As String = If (Session.Authenticated, "Yes", "No")
 		    Dim RequestCount As Integer = Session.RequestCount
+		    Dim LastRequst As String = Session.LastRequestTimestamp.SQLDateTime
 		    
 		    TableHTML = TableHTML _
 		    + "<tr>" + EndOfLine _
@@ -108,6 +110,7 @@ Protected Class Sessions
 		    + "<td>" + Username + "</td>" + EndOfLine _
 		    + "<td>" + Authenticated + "</td>" + EndOfLine _
 		    + "<td>" + RequestCount.ToText + "</td>" + EndOfLine _
+		    + "<td>" + LastRequst + "</td>" + EndOfLine _
 		    + "<tr>" + EndOfLine
 		    
 		  Next
