@@ -53,6 +53,20 @@ Inherits Dictionary
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Sub Value(key As Variant, Assigns value As Variant)
+		  // Notify anything using this class that a value has changed
+		  
+		  Super.Value(key) = value
+		  RaiseEvent ValueChanged(key)
+		End Sub
+	#tag EndMethod
+
+
+	#tag Hook, Flags = &h0
+		Event ValueChanged(Key As Variant)
+	#tag EndHook
+
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
