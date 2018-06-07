@@ -22,17 +22,6 @@ Implements SessionEngineInterface
 		  Period = SweepIntervalSecs * 1000
 		  Mode = Timer.ModeMultiple
 		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
 		End Sub
 	#tag EndMethod
 
@@ -117,16 +106,7 @@ Implements SessionEngineInterface
 		  
 		  
 		  // Add the session to the Sessions dictionary.
-		  Sessions.Value(NewSessionID) = Session
-		  
-		  
-		  // Set the cookie expiration date.
-		  Dim CookieExpiration As New Date
-		  CookieExpiration.Second = CookieExpiration.Second + SessionsTimeOutSecs
-		  
-		  
-		  // Drop the SessionID cookie.
-		  Request.Response.CookieSet("SessionID", NewSessionID, CookieExpiration)
+		  SessionSave(Session, Request)
 		  
 		  
 		  // Return the session to the caller.
@@ -182,6 +162,24 @@ Implements SessionEngineInterface
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Sub SessionSave(Session As Dictionary, Request As AloeExpress.Request)
+		  Dim SessionID As String = Session.Value(AloeExpress.Session.kSessionID)
+		  
+		  // Set the cookie expiration date.
+		  Dim Now As New Date
+		  Dim CookieExpiration As New Date(Now)
+		  CookieExpiration.TotalSeconds = CookieExpiration.TotalSeconds + SessionsTimeOutSecs
+		  
+		  // Drop the SessionID cookie.
+		  Request.Response.CookieSet("SessionID", SessionID, CookieExpiration)
+		  
+		  Session.Value(AloeExpress.Session.kLastRequestTimestamp) = Now
+		  Sessions.Value(SessionID) = Session
+		  
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Sub SessionsSweep()
 		  // Removes any expired sessions from the Sessions array.
@@ -198,10 +196,10 @@ Implements SessionEngineInterface
 		  For Each Key As Variant in Sessions.Keys
 		    
 		    // Get the entry's value.
-		    Dim Session As Dictionary = Sessions.Value(Key)
+		    Dim Session As AloeExpress.Session = Sessions.Value(Key)
 		    
 		    // Get the session's LastRequestTimestamp.
-		    Dim LastRequestTimestamp As Date = Session.Value("LastRequestTimestamp")
+		    Dim LastRequestTimestamp As Date = Session.LastRequestTimestamp
 		    
 		    // Determine the time that has elapsed since the last request.
 		    Dim TimeElapsedSecs As Double = Now.TotalSeconds - LastRequestTimestamp.TotalSeconds
