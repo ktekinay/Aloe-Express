@@ -10,6 +10,9 @@ Inherits ConsoleApplication
 		  // This is used by the DemoSessions demo module.
 		  Server.SessionsEnabled = True
 		  
+		  // Uncomment this line if you want to use Redis as the backend
+		  'Server.SessionEngine = New RedisSessionEngine
+		  
 		  // Configure server-level caching.
 		  // This is used by the DemoCaching demo module.
 		  Server.CachingEnabled = True
