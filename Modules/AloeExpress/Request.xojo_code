@@ -957,6 +957,7 @@ Inherits SSLSocket
 		Sub SessionTerminate()
 		  If Session <> Nil Then
 		    Server.SessionEngine.SessionTerminate(Session)
+		    Session = Nil
 		  End If
 		End Sub
 	#tag EndMethod
