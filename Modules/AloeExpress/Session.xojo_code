@@ -6,6 +6,8 @@ Inherits Dictionary
 		  // Calling the overridden superclass constructor.
 		  Super.Constructor
 		  
+		  SessionID = UUIDGenerate
+		  
 		End Sub
 	#tag EndMethod
 
@@ -14,7 +16,6 @@ Inherits Dictionary
 		  Self.Constructor
 		  
 		  // Set the required Keys
-		  SessionID = UUIDGenerate
 		  LastRequestTimestamp = New Date
 		  RemoteAddress = Request.RemoteAddress
 		  UserAgent = Request.Headers.Lookup("User-Agent", "")
@@ -32,7 +33,10 @@ Inherits Dictionary
 		  Dim CopyValues() As Variant = CopyFromDictionary.Values
 		  
 		  For Index As Integer = 0 To CopyKeys.Ubound
-		    Value(CopyKeys(Index)) = CopyValues(Index)
+		    Dim Key As String = CopyKeys(Index)
+		    If Key <> kSessionID Then
+		      Value(Key) = CopyValues(Index)
+		    End If
 		  Next
 		  
 		End Sub
@@ -45,7 +49,9 @@ Inherits Dictionary
 		  Dim JSON As JSONItem = AloeExpress.JSONStringToJSONItem(JSONString)
 		  
 		  For Each Name As String In JSON.Names
-		    Session.Value(Name) = JSON.Value(Name)
+		    If Name <> kSessionID Then
+		      Session.Value(Name) = JSON.Value(Name)
+		    End If
 		  Next
 		  
 		  Return Session
