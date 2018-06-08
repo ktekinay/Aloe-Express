@@ -1312,7 +1312,7 @@ Inherits SSLSocket
 	#tag EndProperty
 
 	#tag Property, Flags = &h0
-		Session As Dictionary
+		Session As AloeExpress.Session
 	#tag EndProperty
 
 	#tag Property, Flags = &h0

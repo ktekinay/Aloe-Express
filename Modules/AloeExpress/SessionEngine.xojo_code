@@ -163,8 +163,8 @@ Implements SessionEngineInterface
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub SessionSave(Session As Dictionary, Request As AloeExpress.Request)
-		  Dim SessionID As String = Session.Value(AloeExpress.Session.kSessionID)
+		Sub SessionSave(Session As AloeExpress.Session, Request As AloeExpress.Request)
+		  Dim SessionID As String = Session.SessionID
 		  
 		  // Set the cookie expiration date.
 		  Dim Now As New Date
@@ -174,7 +174,7 @@ Implements SessionEngineInterface
 		  // Drop the SessionID cookie.
 		  Request.Response.CookieSet("SessionID", SessionID, CookieExpiration)
 		  
-		  Session.Value(AloeExpress.Session.kLastRequestTimestamp) = Now
+		  Session.LastRequestTimestamp = Now
 		  Sessions.Value(SessionID) = Session
 		  
 		End Sub
@@ -224,7 +224,7 @@ Implements SessionEngineInterface
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub SessionTerminate(Session As Dictionary)
+		Sub SessionTerminate(Session As AloeExpress.Session)
 		  // Terminates a given session.
 		  
 		  

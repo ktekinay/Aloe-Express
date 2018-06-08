@@ -19,13 +19,13 @@ Protected Interface SessionEngineInterface
 	#tag EndMethod
 
 	#tag Method, Flags = &h0, Description = 5361766520616E6420757064617465207468652065787069726174696F6E206F6620612053657373696F6E2E
-		Sub SessionSave(Session As Dictionary, Request As AloeExpress.Request)
+		Sub SessionSave(Session As AloeExpress.Session, Request As AloeExpress.Request)
 		  
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0, Description = 54656D696E617465207468652073657373696F6E206279207468652053657373696F6E4944206B65792E
-		Sub SessionTerminate(Session As Dictionary)
+		Sub SessionTerminate(Session As AloeExpress.Session)
 		  
 		End Sub
 	#tag EndMethod
