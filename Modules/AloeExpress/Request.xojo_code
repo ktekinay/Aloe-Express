@@ -818,6 +818,11 @@ Inherits SSLSocket
 		  // Hand the request off to the RequestHandler.
 		  App.RequestHandler(Self)
 		  
+		  // Save the Session if needed
+		  If Server <> Nil And Server.SessionsEnabled And Session <> Nil Then
+		    Server.SessionEngine.SessionSave(Session, Self)
+		  End If
+		  
 		  // Return the response.
 		  ResponseReturn
 		  
