@@ -154,7 +154,7 @@ Inherits ServerSocket
 		  End If
 		  
 		  // If session management is enabled...
-		  If SessionsEnabled Then
+		  If SessionsEnabled And SessionEngine Is Nil Then
 		    SessionEngine = New AloeExpress.SessionEngine(SessionsSweepIntervalSecs)
 		  End If
 		  
