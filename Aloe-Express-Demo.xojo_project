@@ -24,6 +24,7 @@ Class=Confidential;Demos/DemoSessions/Confidential.xojo_code;&h000000005058E7FF;
 Module=DemoTemplatesServerSide;Demos/DemoTemplatesServerSide.xojo_code;&h0000000001D85FFF;&h000000002B9BD7FF;false
 Module=DemoWebSockets;Demos/DemoWebSockets.xojo_code;&h00000000475E3FFF;&h000000002B9BD7FF;false
 Module=DemoXojoScript;Demos/DemoXojoScript.xojo_code;&h0000000060847FFF;&h000000002B9BD7FF;false
+Class=RedisSessionEngine;Demos/RedisSessionEngine.xojo_code;&h0000000024ED0FFF;&h000000002B9BD7FF;false
 Class=IndexPage;Demos/DemoTemplatesServerSide/IndexPage.xojo_code;&h000000001D0CBFFF;&h0000000001D85FFF;false
 Class=MustacheLite;Modules/Templates/MustacheLite.xojo_code;&h0000000044A817FF;&h0000000031C117FF;false
 Class=FormProcessor;Demos/DemoMultipartForms/FormProcessor.xojo_code;&h000000000FC5DFFF;&h000000001DD8C7FF;false
