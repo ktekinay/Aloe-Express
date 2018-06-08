@@ -166,6 +166,15 @@ Protected Module AloeExpress
 		  
 		  Dim J As JSONItem
 		  J = DictionaryIn
+		  
+		  // Replace Dates with their corresponding strings
+		  For Each Name As String In J.Names
+		    Dim Value As Variant = J.Value(Name)
+		    If Value.Type = Variant.TypeDate Then
+		      J.Value(Name) = Value.DateValue.SQLDateTime
+		    End If
+		  Next
+		  
 		  Return J.ToString
 		  
 		End Function
